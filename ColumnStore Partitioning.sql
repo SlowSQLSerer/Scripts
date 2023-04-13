@@ -90,7 +90,7 @@ BEGIN TRY
 
 
 	--------------------------------------------------------------------------------------------
-	-- Create the partition schema psMonths for partition function pfMonths
+	-- Create the partition scheme psMonths for partition function pfMonths
 	--------------------------------------------------------------------------------------------
 	IF NOT EXISTS (SELECT 1 FROM sys.partition_schemes WHERE [name] = 'psMonths')
 	BEGIN
@@ -151,7 +151,7 @@ BEGIN TRY
 	RAISERROR (@ProcMessage,10,1);
 
 	--------------------------------------------------------------------------------------------
-	-- Populate the non partition work table
+	-- Populate the non columnstore/partition work table
 	--------------------------------------------------------------------------------------------
 	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + N' - Populating table dbo.tbl_Test_Non_ColumnStore_Partition with 100000 rows.';
 	RAISERROR (@ProcMessage,10,1);
@@ -172,20 +172,23 @@ BEGIN TRY
 	RAISERROR (@ProcMessage,10,1);
  
  	--------------------------------------------------------------------------------------------
-	-- Populate the non partition work table
+	-- Populate the columntore partition work table
 	--------------------------------------------------------------------------------------------
-	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + N' - Copy data from the dbo.tbl_Test_Non_ColumnStore_Partition table to the dbo.tbl_Test_ColumnStore_Partition table.';
+	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + 
+			N' - Copy data from the dbo.tbl_Test_Non_ColumnStore_Partition table to the dbo.tbl_Test_ColumnStore_Partition table.';
 	RAISERROR (@ProcMessage,10,1);
 	SET IDENTITY_INSERT dbo.tbl_Test_ColumnStore_Partition ON;
 	INSERT dbo.tbl_Test_ColumnStore_Partition ([Date],[ID],[AccRef],[Amount]) SELECT [Date],[ID],[AccRef],[Amount] FROM dbo.tbl_Test_Non_ColumnStore_Partition ;
-	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + N' - ' + CAST(@@ROWCOUNT AS NVARCHAR(256)) + ' rows inserted into table dbo.tbl_Test_ColumnStore_Partition table.';
+	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + N' - ' + CAST(@@ROWCOUNT AS NVARCHAR(256)) + 
+						' rows inserted into table dbo.tbl_Test_ColumnStore_Partition table.';
 	RAISERROR (@ProcMessage,10,1);
 	SET IDENTITY_INSERT dbo.tbl_Test_ColumnStore_Partition OFF;
 
  	--------------------------------------------------------------------------------------------
 	-- Create a columnstore clustered index on the dbo.tbl_Test_Non_ColumnStore_Partition table.
 	--------------------------------------------------------------------------------------------
-	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + N' - Create a columnstore clustered index on the dbo.tbl_Test_Non_ColumnStore_Partition table.';
+	SET @ProcMessage = @ObjectName + N' - ' +  CONVERT(NVARCHAR(64), GETDATE(),120) + 
+				N' - Create a columnstore clustered index on the dbo.tbl_Test_Non_ColumnStore_Partition table.';
 	RAISERROR (@ProcMessage,10,1); 
 	CREATE CLUSTERED COLUMNSTORE INDEX CCI ON dbo.tbl_Test_ColumnStore_Partition;
 
@@ -232,7 +235,3 @@ BEGIN CATCH
 
  
 END CATCH
-
- 
-
-
